@@ -3,7 +3,7 @@ import React from 'react';
 import * as Animatable from 'react-native-animatable';
 import { useNavigation } from '@react-navigation/native';
 
-export default function Boasvindas() {
+export default function Home() {
   const navigation = useNavigation();
   return (
     <View style={styles.container}>
