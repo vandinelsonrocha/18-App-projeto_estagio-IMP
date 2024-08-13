@@ -3,11 +3,11 @@ import { View, Text, FlatList, StyleSheet, Alert, TouchableOpacity } from 'react
 import { db } from '../firebase/config';
 import { useFocusEffect } from '@react-navigation/native'; // Importe useFocusEffect
 
-export default function Inventario({ navigation }) {
+export default function Equipamentos({ navigation }) {
   const [dadosEquipamentos, setDadosEquipamentos] = useState([]);
   const [carregando, setCarregando] = useState(true);
 
-  // Função para buscar os equipamentos
+  // Função para buscar os equipamentos de TI
   const buscarEquipamentos = async () => {
     try {
       const colecao = await db.collection('equipamentos').get();
@@ -34,7 +34,7 @@ export default function Inventario({ navigation }) {
     }, [])
   );
 
-  const handleApagar = (id) => {
+  const apagarEquipamentoTi = (id) => {
     Alert.alert(
       "Confirmação",
       "Tem certeza que deseja apagar este equipamento?",
@@ -47,8 +47,6 @@ export default function Inventario({ navigation }) {
           text: "OK", onPress: async () => {
             try {
               await db.collection('equipamentos').doc(id).delete();
-              // Não é necessário atualizar a lista manualmente aqui
-              Alert.alert("Sucesso", "Equipamento apagado com sucesso!");
             } catch (erro) {
               console.error("Erro ao apagar o equipamento: ", erro);
               Alert.alert("Erro", "Erro ao apagar o equipamento.");
@@ -82,7 +80,7 @@ export default function Inventario({ navigation }) {
               <TouchableOpacity onPress={() => navigation.navigate('EditarEquipamento', item)}>
                 <Text style={[styles.acao, styles.equipEditar]}>Editar</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleApagar(item.id)}>
+              <TouchableOpacity onPress={() => apagarEquipamentoTi(item.id)}>
                 <Text style={[styles.acao, styles.equipApagar]}>Apagar</Text>
               </TouchableOpacity>
             </View>

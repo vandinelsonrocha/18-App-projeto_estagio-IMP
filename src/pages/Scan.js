@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { Camera, CameraView } from 'expo-camera';
 import { auth } from '../firebase/config';
 
@@ -24,7 +24,7 @@ export default function Scan({ navigation }) {
 
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
-    navigation.navigate('DadosEquipamentos', { dadosCodBarras: data });
+    navigation.navigate('DadosScan', { dadosCodBarras: data });
   };
 
   if (hasPermission === null) {
@@ -44,7 +44,14 @@ export default function Scan({ navigation }) {
           <Button title={"Escanear novamente"} onPress={() => setScanned(false)} />
         )}
       </View>
-      <Button title={"Aceder inventário"} onPress={() => navigation.navigate('Inventario')} />
+      <View style={styles.categoriaContainer}>
+        <TouchableOpacity onPress={() => navigation.navigate('Equipamentos')}>
+          <Text style={[styles.categoria, styles.categoriaEquip]}>Equipamentos TI</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Mobilias')}>
+          <Text style={styles.categoria}>Mobílias</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -63,6 +70,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 3,
     borderColor: 'blue',
+    marginBottom: 30,
   },
   text:  {
     textAlign: 'center',
@@ -70,5 +78,11 @@ const styles = StyleSheet.create({
   },
   absoluteFillObject:  {
     borderRadius: 20,
+  },
+  categoriaContainer: {
+    flexDirection: 'row',
+  },
+  categoriaEquip: {
+    marginRight: 18,
   }
 });

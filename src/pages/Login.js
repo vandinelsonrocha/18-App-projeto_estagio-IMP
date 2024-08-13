@@ -62,7 +62,7 @@ export default function Login({ navigation }) {
             style={{width: '100%', height: 200}} 
             resizeMode='contain'
         />
-        <Text style={styles.titulo}>Bem-vindo(a)!</Text>
+        <Text style={styles.titulo}>Faça login para continuar!</Text>
       </View>
       <Animatable.View animation="fadeInUp" style={styles.containerForm}>
         <Text style={styles.inputTitulo}>E-mail</Text>
