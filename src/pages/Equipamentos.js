@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { db } from '../firebase/config';
-import { useFocusEffect } from '@react-navigation/native'; // Importe useFocusEffect
+import { useFocusEffect } from '@react-navigation/native';
+import CriarEquipamento from '../components/CriarEquipamento';
 
 export default function Equipamentos({ navigation }) {
   const [dadosEquipamentos, setDadosEquipamentos] = useState([]);
   const [carregando, setCarregando] = useState(true);
+  const [modalVisivel, setModalVisivel] = useState(false); // Estado para controlar a visibilidade do modal
 
   // Função para buscar os equipamentos de TI
   const buscarEquipamentos = async () => {
@@ -47,6 +49,7 @@ export default function Equipamentos({ navigation }) {
           text: "OK", onPress: async () => {
             try {
               await db.collection('equipamentos').doc(id).delete();
+              setDadosEquipamentos(dadosEquipamentos.filter(item => item.id !== id));
             } catch (erro) {
               console.error("Erro ao apagar o equipamento: ", erro);
               Alert.alert("Erro", "Erro ao apagar o equipamento.");
@@ -55,6 +58,12 @@ export default function Equipamentos({ navigation }) {
         }
       ]
     );
+  };
+
+  const formatarData = (timestamp) => {
+    if (!timestamp) return 'Data não disponível';
+    const data = timestamp.toDate();
+    return `${data.getDate()}/${data.getMonth() + 1}/${data.getFullYear()}`;
   };
 
   if (carregando) {
@@ -74,8 +83,13 @@ export default function Equipamentos({ navigation }) {
           <View style={styles.item}>
             <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Código de Barras:</Text> {item.id}</Text>
             <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Nome:</Text> {item.Nome}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Descrição:</Text> {item.Descrição}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Localização:</Text> {item.Localização}</Text>
+            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Número de Série:</Text> {item.Numero_serie}</Text>
+            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Marca:</Text> {item.Marca}</Text>
+            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Localização:</Text> {item.Localizacao}</Text>
+            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Data de Aquisição:</Text> {formatarData(item.Data_aquisicao)}</Text>
+            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Custo de Aquisição:</Text> {item.Custo_aquisicao}</Text>
+            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Condição Atual:</Text> {item.Condicao_atual}</Text>
+            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Vida Útil Estimada:</Text> {item.Vida_util_estimada}</Text>
             <View style={styles.equipAcoes}>
               <TouchableOpacity onPress={() => navigation.navigate('EditarEquipamento', item)}>
                 <Text style={[styles.acao, styles.equipEditar]}>Editar</Text>
@@ -87,6 +101,14 @@ export default function Equipamentos({ navigation }) {
           </View>
         )}
       />
+      <TouchableOpacity style={styles.criar} onPress={() => setModalVisivel(true)}>
+        <Text style={styles.equipCriar}>Criar</Text>
+      </TouchableOpacity>
+      <CriarEquipamento
+        visible={modalVisivel}
+        onClose={() => setModalVisivel(false)}
+        onCriar={buscarEquipamentos}
+      />
     </View>
   );
 }
@@ -95,7 +117,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
   },
   item: {
     padding: 15,
@@ -126,6 +148,19 @@ const styles = StyleSheet.create({
   },
   equipApagar: {
     backgroundColor: '#EF3236',
+  },
+  criar: {
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  equipCriar: {
+    borderRadius: 4,
+    fontWeight: 'bold',
+    fontSize: 18,
+    color: '#FFFFFF',
+    backgroundColor: '#261E6B',
+    paddingHorizontal: 32,
+    paddingVertical: 8,
   },
   mensagem: {
     flex: 1,

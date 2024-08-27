@@ -46,7 +46,7 @@ export default function Scan({ navigation }) {
       </View>
       <View style={styles.categoriaContainer}>
         <TouchableOpacity onPress={() => navigation.navigate('Equipamentos')}>
-          <Text style={[styles.categoria, styles.categoriaEquip]}>Equipamentos TI</Text>
+          <Text style={[styles.categoria, styles.categoriaEquip]}>Equipamentos</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('Mobilias')}>
           <Text style={styles.categoria}>Mobílias</Text>

@@ -1,25 +1,43 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Alert,Text } from 'react-native';
+import { View, TextInput, Button, StyleSheet, Alert, Text } from 'react-native';
 import { db } from '../firebase/config';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function EditarMobilia({ route, navigation }) {
-  const { id, Nome, Descrição, Localização } = route.params;
+  const { id, Nome, Localizacao, Data_aquisicao, Custo_aquisicao, Condicao_atual, Vida_util_estimada, Material } = route.params;
+
   const [nome, setNome] = useState(Nome);
-  const [descricao, setDescricao] = useState(Descrição);
-  const [localizacao, setLocalizacao] = useState(Localização);
+  const [localizacao, setLocalizacao] = useState(Localizacao);
+  const [dataAquisicao, setDataAquisicao] = useState(Data_aquisicao ? Data_aquisicao.toDate() : new Date());
+  const [custoAquisicao, setCustoAquisicao] = useState(Custo_aquisicao);
+  const [condicaoAtual, setCondicaoAtual] = useState(Condicao_atual);
+  const [vidaUtilEstimada, setVidaUtilEstimada] = useState(Vida_util_estimada);
+  const [material, setMaterial] = useState(Material);
+  const [mostraDatePicker, setMostraDatePicker] = useState(false);
 
   const handleSalvar = async () => {
     try {
       await db.collection('mobilias').doc(id).update({
         Nome: nome,
-        Descrição: descricao,
-        Localização: localizacao,
+        Localizacao: localizacao,
+        Data_aquisicao: dataAquisicao,
+        Custo_aquisicao: custoAquisicao,
+        Condicao_atual: condicaoAtual,
+        Vida_util_estimada: vidaUtilEstimada,
+        Material: material,
       });
       Alert.alert("Sucesso", "Mobília atualizada com sucesso!");
       navigation.goBack();
     } catch (erro) {
       console.error("Erro ao atualizar a mobília: ", erro);
       Alert.alert("Erro", "Erro ao atualizar a mobília.");
+    }
+  };
+
+  const handleDataChange = (event, selectedDate) => {
+    setMostraDatePicker(false);
+    if (selectedDate) {
+      setDataAquisicao(selectedDate);
     }
   };
 
@@ -33,15 +51,45 @@ export default function EditarMobilia({ route, navigation }) {
         style={styles.input}
       />
       <TextInput
-        placeholder="Descrição"
-        value={descricao}
-        onChangeText={setDescricao}
-        style={styles.input}
-      />
-      <TextInput
         placeholder="Localização"
         value={localizacao}
         onChangeText={setLocalizacao}
+        style={styles.input}
+      />
+      <Text style={styles.label}>Data de Aquisição:</Text>
+      <Button title={dataAquisicao.toLocaleDateString()} onPress={() => setMostraDatePicker(true)} />
+      {mostraDatePicker && (
+        <DateTimePicker
+          value={dataAquisicao}
+          mode="date"
+          display="default"
+          onChange={handleDataChange}
+        />
+      )}
+      <TextInput
+        placeholder="Custo de Aquisição"
+        value={custoAquisicao}
+        onChangeText={setCustoAquisicao}
+        style={styles.input}
+        keyboardType="numeric"
+      />
+      <TextInput
+        placeholder="Condição Atual"
+        value={condicaoAtual}
+        onChangeText={setCondicaoAtual}
+        style={styles.input}
+      />
+      <TextInput
+        placeholder="Vida Útil Estimada"
+        value={vidaUtilEstimada}
+        onChangeText={setVidaUtilEstimada}
+        style={styles.input}
+        keyboardType="numeric"
+      />
+      <TextInput
+        placeholder="Material"
+        value={material}
+        onChangeText={setMaterial}
         style={styles.input}
       />
       <Button title="Salvar" onPress={handleSalvar} />
@@ -66,5 +114,9 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 5,
     marginBottom: 20,
+  },
+  label: {
+    marginBottom: 10,
+    fontWeight: 'bold',
   },
 });
