@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Alert, Text } from 'react-native';
+import { ScrollView, TextInput, Button, StyleSheet, Alert, Text } from 'react-native';
 import { db } from '../firebase/config';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -26,10 +26,9 @@ export default function EditarMobilia({ route, navigation }) {
         Vida_util_estimada: vidaUtilEstimada,
         Material: material,
       });
-      Alert.alert("Sucesso", "Mobília atualizada com sucesso!");
+      Alert.alert("Sucesso", "Mobília atualizada!");
       navigation.goBack();
     } catch (erro) {
-      console.error("Erro ao atualizar a mobília: ", erro);
       Alert.alert("Erro", "Erro ao atualizar a mobília.");
     }
   };
@@ -42,7 +41,7 @@ export default function EditarMobilia({ route, navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
       <Text style={styles.equipId}>Editar mobília: {id}</Text>
       <TextInput
         placeholder="Nome"
@@ -93,15 +92,14 @@ export default function EditarMobilia({ route, navigation }) {
         style={styles.input}
       />
       <Button title="Salvar" onPress={handleSalvar} />
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  scrollContainer: {
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
   },
   equipId: {
     textAlign: 'center',

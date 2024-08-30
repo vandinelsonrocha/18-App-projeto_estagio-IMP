@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Alert, Text } from 'react-native';
+import { ScrollView, TextInput, Button, StyleSheet, Alert, Text } from 'react-native';
 import { db } from '../firebase/config';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -28,10 +28,9 @@ export default function EditarEquipamento({ route, navigation }) {
         Condicao_atual: condicaoAtual,
         Vida_util_estimada: vidaUtilEstimada,
       });
-      Alert.alert("Sucesso", "Equipamento atualizado com sucesso!");
+      Alert.alert("Sucesso", "Equipamento atualizado!");
       navigation.goBack();
     } catch (erro) {
-      console.error("Erro ao atualizar o equipamento: ", erro);
       Alert.alert("Erro", "Erro ao atualizar o equipamento.");
     }
   };
@@ -44,7 +43,7 @@ export default function EditarEquipamento({ route, navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
       <Text style={styles.equipId}>Editar equipamento: {id}</Text>
       <TextInput
         placeholder="Nome"
@@ -101,15 +100,14 @@ export default function EditarEquipamento({ route, navigation }) {
         style={styles.input}
       />
       <Button title="Salvar" onPress={handleSalvar} />
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  scrollContainer: {
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
   },
   equipId: {
     textAlign: 'center',

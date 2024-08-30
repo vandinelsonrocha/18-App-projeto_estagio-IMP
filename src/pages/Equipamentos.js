@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, FlatList, StyleSheet, Alert, TouchableOpacity, TextInput } from 'react-native';
 import { db } from '../firebase/config';
 import { useFocusEffect } from '@react-navigation/native';
 import CriarEquipamento from '../components/CriarEquipamento';
@@ -8,6 +8,8 @@ export default function Equipamentos({ navigation }) {
   const [dadosEquipamentos, setDadosEquipamentos] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [modalVisivel, setModalVisivel] = useState(false); // Estado para controlar a visibilidade do modal
+  const [pesquisa, setPesquisa] = useState(''); // Estado para o texto de pesquisa
+  const [dadosFiltrados, setDadosFiltrados] = useState([]); // Estado para armazenar os dados filtrados
 
   // Função para buscar os equipamentos de TI
   const buscarEquipamentos = async () => {
@@ -21,9 +23,11 @@ export default function Equipamentos({ navigation }) {
           ...doc.data(),
         }));
         setDadosEquipamentos(dados);
+        setDadosFiltrados(dados); // Inicialmente, os dados filtrados são os mesmos que os dados carregados
       }
     } catch (erro) {
-      console.error("Erro ao buscar os equipamentos: ", erro);
+      Alert.alert('Erro', 'Erro ao buscar os equipamentos!');
+      navigation.navigate('Scan');
     } finally {
       setCarregando(false);
     }
@@ -36,6 +40,14 @@ export default function Equipamentos({ navigation }) {
     }, [])
   );
 
+  // Função para filtrar os equipamentos com base no texto de pesquisa
+  useEffect(() => {
+    const dadosAtualizados = dadosEquipamentos.filter(item => 
+      item.Nome.toLowerCase().includes(pesquisa.toLowerCase())
+    );
+    setDadosFiltrados(dadosAtualizados);
+  }, [pesquisa, dadosEquipamentos]);
+
   const apagarEquipamentoTi = (id) => {
     Alert.alert(
       "Confirmação",
@@ -43,7 +55,6 @@ export default function Equipamentos({ navigation }) {
       [
         {
           text: "Cancelar",
-          style: "cancel"
         },
         {
           text: "OK", onPress: async () => {
@@ -51,7 +62,6 @@ export default function Equipamentos({ navigation }) {
               await db.collection('equipamentos').doc(id).delete();
               setDadosEquipamentos(dadosEquipamentos.filter(item => item.id !== id));
             } catch (erro) {
-              console.error("Erro ao apagar o equipamento: ", erro);
               Alert.alert("Erro", "Erro ao apagar o equipamento.");
             }
           }
@@ -67,29 +77,38 @@ export default function Equipamentos({ navigation }) {
   };
 
   if (carregando) {
-    return <Text>Carregando equipamentos...</Text>;
-  }
-
-  if (dadosEquipamentos.length === 0) {
-    return <Text style={styles.mensagem}>Nenhum equipamento cadastrado.</Text>;
+    return <Text style={[styles.msgText, styles.msgText1]}>Carregando equipamentos...</Text>;
   }
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity onPress={() => navigation.navigate('Mobilias')}>
+        <Text style={styles.mobilias}>Mobílias</Text>
+      </TouchableOpacity>
+      <Text style={styles.equipDica}>Adicione, edite ou remova equipamentos com um clique e mantenha-os sempre atualizados!</Text>
+      
+      {/* Campo de pesquisa */}
+      <TextInput
+        style={styles.inputPesquisa}
+        placeholder="Pesquise equipamentos pelo nome"
+        value={pesquisa}
+        onChangeText={setPesquisa}
+      />
+      
       <FlatList
-        data={dadosEquipamentos}
+        data={dadosFiltrados}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <View style={styles.item}>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Código de Barras:</Text> {item.id}</Text>
+            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Código de barras:</Text> {item.id}</Text>
             <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Nome:</Text> {item.Nome}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Número de Série:</Text> {item.Numero_serie}</Text>
+            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Número de série:</Text> {item.Numero_serie}</Text>
             <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Marca:</Text> {item.Marca}</Text>
             <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Localização:</Text> {item.Localizacao}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Data de Aquisição:</Text> {formatarData(item.Data_aquisicao)}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Custo de Aquisição:</Text> {item.Custo_aquisicao}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Condição Atual:</Text> {item.Condicao_atual}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Vida Útil Estimada:</Text> {item.Vida_util_estimada}</Text>
+            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Data de aquisição:</Text> {formatarData(item.Data_aquisicao)}</Text>
+            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Custo de aquisição:</Text> {item.Custo_aquisicao}</Text>
+            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Condição atual:</Text> {item.Condicao_atual}</Text>
+            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Vida útil estimada:</Text> {item.Vida_util_estimada}</Text>
             <View style={styles.equipAcoes}>
               <TouchableOpacity onPress={() => navigation.navigate('EditarEquipamento', item)}>
                 <Text style={[styles.acao, styles.equipEditar]}>Editar</Text>
@@ -116,11 +135,36 @@ export default function Equipamentos({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#FFFFFF',
+    padding: 16,
+  },
+  mobilias: {
+    alignSelf: 'flex-end',
+    borderWidth: 1,
+    borderRadius: 4,
+    borderColor: '#261E6B',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    color: '#261E6B',
+    fontSize: 16,
+  },
+  equipDica: {
+    textAlign: 'center',
+    marginTop: 22,
+    marginBottom: 14,
+    color: '#261E6B',
+    fontSize: 16,
+    fontWeight: '400',
+  },
+  inputPesquisa: {
+    height: 40,
+    borderColor: '#CCC',
+    borderWidth: 0,
+    borderBottomWidth: 1,
+    marginBottom: 16,
   },
   item: {
-    padding: 15,
+    paddingVertical: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
   },
@@ -162,11 +206,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     paddingVertical: 8,
   },
-  mensagem: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    fontSize: 18,
-    color: '#888',
-  }
+  msgText: {
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: '400',
+    marginTop: 90,
+  },
+  msgText1: {
+    color: '#00A884',
+  },
+  msgText2: {
+    color: '#EF3236',
+  },
 });

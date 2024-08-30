@@ -22,12 +22,12 @@ export default function App() {
       <Stack.Navigator initialRouteName='Home'>
         <Stack.Screen name='Home' component={Home} options={{ headerShown: false }} />
         <Stack.Screen name='Login' component={Login} options={{ headerShown: false }} />
-        <Stack.Screen name='Scan' component={Scan} />
-        <Stack.Screen name='DadosScan' component={DadosScan} />
-        <Stack.Screen name='Equipamentos' component={Equipamentos} />
-        <Stack.Screen name='EditarEquipamento' component={EditarEquipamento} />
-        <Stack.Screen name='Mobilias' component={Mobilias} />
-        <Stack.Screen name='EditarMobilia' component={EditarMobilia} />
+        <Stack.Screen name='Scan' component={Scan} options={{ headerShown: false }} />
+        <Stack.Screen name='DadosScan' component={DadosScan} options={{ headerShown: false }} />
+        <Stack.Screen name='Equipamentos' component={Equipamentos} options={{ headerShown: false }} />
+        <Stack.Screen name='EditarEquipamento' component={EditarEquipamento} options={{ headerShown: false }} />
+        <Stack.Screen name='Mobilias' component={Mobilias} options={{ headerShown: false }} />
+        <Stack.Screen name='EditarMobilia' component={EditarMobilia} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

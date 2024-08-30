@@ -22,7 +22,8 @@ export default function Mobilias({ navigation }) {
         setDadosMobilias(dados);
       }
     } catch (erro) {
-      console.error("Erro ao buscar as mobílias: ", erro);
+      Alert.alert('Erro', 'Erro ao buscar as mobílias!');
+      navigation.navigate('Scan');
     } finally {
       setCarregando(false);
     }
@@ -65,27 +66,30 @@ export default function Mobilias({ navigation }) {
   };
 
   if (carregando) {
-    return <Text>Carregando mobílias...</Text>;
+    return <Text style={[styles.msgText, styles.msgText1]}>Carregando mobílias...</Text>;
   }
 
   if (dadosMobilias.length === 0) {
-    return <Text style={styles.mensagem}>Nenhuma mobília cadastrada.</Text>;
+    return <Text style={[styles.msgText, styles.msgText1]}>Nenhuma mobília cadastrada.</Text>;
   }
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity onPress={() => navigation.navigate('Equipamentos')}>
+        <Text style={styles.equipamentos}>Equipamentos</Text>
+      </TouchableOpacity>
       <FlatList
         data={dadosMobilias}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <View style={styles.item}>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Código de Barras:</Text> {item.id}</Text>
+            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Código de barras:</Text> {item.id}</Text>
             <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Nome:</Text> {item.Nome}</Text>
             <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Localização:</Text> {item.Localizacao}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Data de Aquisição:</Text> {formatarData(item.Data_aquisicao)}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Custo de Aquisição:</Text> {item.Custo_aquisicao}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Condição Atual:</Text> {item.Condicao_atual}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Vida Útil Estimada:</Text> {item.Vida_util_estimada}</Text>
+            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Data de aquisição:</Text> {formatarData(item.Data_aquisicao)}</Text>
+            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Custo de aquisição:</Text> {item.Custo_aquisicao}</Text>
+            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Condição atual:</Text> {item.Condicao_atual}</Text>
+            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Vida útil estimada:</Text> {item.Vida_util_estimada}</Text>
             <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Material:</Text> {item.Material}</Text>
             <View style={styles.equipAcoes}>
               <TouchableOpacity onPress={() => navigation.navigate('EditarMobilia', item)}>
@@ -159,11 +163,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     paddingVertical: 8,
   },
-  mensagem: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    fontSize: 18,
-    color: '#888',
+  msgText: {
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: '400',
+    marginTop: 90,
+  },
+  msgText1: {
+    color: '#00A884',
+  },
+  msgText2: {
+    color: '#EF3236',
   }
 });
