@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, TextInput, Button, StyleSheet, Alert, Text } from 'react-native';
+import { ScrollView, TextInput, StyleSheet, Alert, Text, View } from 'react-native';
 import { db } from '../firebase/config';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -18,7 +18,7 @@ export default function EditarEquipamento({ route, navigation }) {
 
   const handleSalvar = async () => {
     try {
-      await db.collection('equipamentos').doc(id).update({
+      await db.collection('equipamentos').doc(id).update({       
         Nome: nome,
         Numero_serie: numeroSerie,
         Marca: marca,
@@ -28,10 +28,9 @@ export default function EditarEquipamento({ route, navigation }) {
         Condicao_atual: condicaoAtual,
         Vida_util_estimada: vidaUtilEstimada,
       });
-      Alert.alert("Sucesso", "Equipamento atualizado!");
-      navigation.goBack();
+      navigation.navigate('Equipamentos');
     } catch (erro) {
-      Alert.alert("Erro", "Erro ao atualizar o equipamento.");
+      Alert.alert("Erro!", "Erro ao atualizar o equipamento.");
     }
   };
 
@@ -45,86 +44,92 @@ export default function EditarEquipamento({ route, navigation }) {
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <Text style={styles.equipId}>Editar equipamento: {id}</Text>
-      <TextInput
-        placeholder="Nome"
-        value={nome}
-        onChangeText={setNome}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Número de Série"
-        value={numeroSerie}
-        onChangeText={setNumeroSerie}
-        style={styles.input}
-        keyboardType="numeric"
-      />
-      <TextInput
-        placeholder="Marca"
-        value={marca}
-        onChangeText={setMarca}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Localização"
-        value={localizacao}
-        onChangeText={setLocalizacao}
-        style={styles.input}
-      />
-      <Text style={styles.label}>Data de Aquisição:</Text>
-      <Button title={dataAquisicao.toLocaleDateString()} onPress={() => setMostraDatePicker(true)} />
-      {mostraDatePicker && (
-        <DateTimePicker
-          value={dataAquisicao}
-          mode="date"
-          display="default"
-          onChange={handleDataChange}
-        />
-      )}
-      <TextInput
-        placeholder="Custo de Aquisição"
-        value={custoAquisicao}
-        onChangeText={setCustoAquisicao}
-        style={styles.input}
-        keyboardType="numeric"
-      />
-      <TextInput
-        placeholder="Condição Atual"
-        value={condicaoAtual}
-        onChangeText={setCondicaoAtual}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Vida Útil Estimada"
-        value={vidaUtilEstimada}
-        onChangeText={setVidaUtilEstimada}
-        style={styles.input}
-      />
-      <Button title="Salvar" onPress={handleSalvar} />
+      <View style={styles.dadoContainer}>
+        <Text style={styles.dado}>Nome:</Text>
+        <TextInput placeholder="Nome" value={nome} onChangeText={setNome} />
+      </View>
+      <View style={styles.dadoContainer}>
+        <Text style={styles.dado}>Número de série:</Text>
+        <TextInput placeholder="Número de Série" value={numeroSerie} onChangeText={setNumeroSerie} keyboardType="numeric" />
+      </View>
+      <View style={styles.dadoContainer}>
+        <Text style={styles.dado}>Marca:</Text>
+        <TextInput placeholder="Marca" value={marca} onChangeText={setMarca} />
+      </View>
+      <View style={styles.dadoContainer}>
+        <Text style={styles.dado}>Localização:</Text>
+        <TextInput placeholder="Localização" value={localizacao} onChangeText={setLocalizacao} />
+      </View>
+      <View style={styles.dadoContainer}>
+        <Text style={styles.dado}>Data de Aquisição:</Text>
+        <TextInput onPress={() => setMostraDatePicker(true)}>{dataAquisicao.toLocaleDateString()}</TextInput>
+        {mostraDatePicker && (
+          <DateTimePicker value={dataAquisicao} mode="date" display="default" onChange={handleDataChange} />
+        )}
+      </View>
+      <View style={styles.dadoContainer}>
+        <Text style={styles.dado}>Custo de aquisição:</Text>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 2, alignItems: 'center'}}>
+          <TextInput placeholder="Custo de Aquisição" value={custoAquisicao} onChangeText={setCustoAquisicao} keyboardType="numeric" />
+          <Text>$00</Text>
+        </View>
+      </View>
+      <View style={styles.dadoContainer}>
+        <Text style={styles.dado}>Condição atual:</Text>
+        <TextInput placeholder="Condição Atual" value={condicaoAtual} onChangeText={setCondicaoAtual} />
+      </View>
+      <View style={styles.dadoContainer}>
+        <Text style={styles.dado}>Vida útil estimada:</Text>
+        <TextInput placeholder="Vida Útil Estimada" value={vidaUtilEstimada} onChangeText={setVidaUtilEstimada} />
+      </View>
+      <View style={styles.acoesContainer}>
+        <Text style={[styles.botaoAcao, styles.salvar]} onPress={handleSalvar}>Salvar</Text>
+        <Text style={[styles.botaoAcao, styles.cancelar]} onPress={() => navigation.navigate('Equipamentos')}>Cancelar</Text>
+      </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   scrollContainer: {
-    padding: 20,
+    flex: 1 ,
+    justifyContent: 'center',
     backgroundColor: '#FFFFFF',
+    paddingHorizontal: 20,
   },
   equipId: {
     textAlign: 'center',
-    marginBottom: 32,
-    fontSize: 18,
+    marginBottom: 12,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  dadoContainer: {
+    borderBottomWidth: .8,
+    borderBottomColor: '#CCC',
+    marginBottom: 12,
+  },
+  dado: {
+    fontWeight: '600',
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  acoesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 4,
+  },
+  botaoAcao: {
+    borderRadius: 3,
     fontWeight: 'bold',
+    fontSize: 16,
+    color: '#FFFFFF',
+    paddingHorizontal: 18,
+    paddingVertical: 6,
   },
-  input: {
-    width: '100%',
-    padding: 15,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    marginBottom: 20,
+  salvar: {
+    backgroundColor: '#261E6B',
   },
-  label: {
-    marginBottom: 10,
-    fontWeight: 'bold',
-  },
+  cancelar: {
+    backgroundColor: '#EF3236',
+  }
 });

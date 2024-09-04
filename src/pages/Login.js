@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { auth } from '../firebase/config';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as Animatable from 'react-native-animatable';
 
 export default function Login({ navigation }) {
@@ -82,7 +82,7 @@ export default function Login({ navigation }) {
               secureTextEntry={!showPassword}
             />
             <TouchableOpacity onPress={toggleShowPassword} style={styles.icon}>
-              <MaterialIcons name={showPassword ? 'visibility' : 'visibility-off'} size={24} color="gray" />
+              <Icon name={showPassword ? 'visibility' : 'visibility-off'} size={24} color="gray" />
             </TouchableOpacity>
           </View>
         </View>
@@ -159,7 +159,6 @@ const styles = StyleSheet.create({
   msgErro: {
     textAlign: 'center',
     marginTop: 48,
-    borderColor: 'red',
     color: '#EF3236',
     fontSize: 16,
   }

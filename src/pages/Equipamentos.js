@@ -3,6 +3,8 @@ import { View, Text, FlatList, StyleSheet, Alert, TouchableOpacity, TextInput } 
 import { db } from '../firebase/config';
 import { useFocusEffect } from '@react-navigation/native';
 import CriarEquipamento from '../components/CriarEquipamento';
+import IconePesq from 'react-native-vector-icons/MaterialIcons';
+import Icone from 'react-native-vector-icons/AntDesign';
 
 export default function Equipamentos({ navigation }) {
   const [dadosEquipamentos, setDadosEquipamentos] = useState([]);
@@ -26,7 +28,7 @@ export default function Equipamentos({ navigation }) {
         setDadosFiltrados(dados); // Inicialmente, os dados filtrados são os mesmos que os dados carregados
       }
     } catch (erro) {
-      Alert.alert('Erro', 'Erro ao buscar os equipamentos!');
+      Alert.alert('Erro!', 'Erro ao buscar os equipamentos!');
       navigation.navigate('Scan');
     } finally {
       setCarregando(false);
@@ -50,7 +52,7 @@ export default function Equipamentos({ navigation }) {
 
   const apagarEquipamentoTi = (id) => {
     Alert.alert(
-      "Confirmação",
+      "Apagar equipamento!",
       "Tem certeza que deseja apagar este equipamento?",
       [
         {
@@ -62,7 +64,7 @@ export default function Equipamentos({ navigation }) {
               await db.collection('equipamentos').doc(id).delete();
               setDadosEquipamentos(dadosEquipamentos.filter(item => item.id !== id));
             } catch (erro) {
-              Alert.alert("Erro", "Erro ao apagar o equipamento.");
+              Alert.alert("Erro!", "Erro ao apagar o equipamento.");
             }
           }
         }
@@ -80,41 +82,96 @@ export default function Equipamentos({ navigation }) {
     return <Text style={[styles.msgText, styles.msgText1]}>Carregando equipamentos...</Text>;
   }
 
+  if (dadosEquipamentos.length === 0) {
+    return (
+      <View>
+        <Text style={[styles.msgText, styles.msgText2]}>Nenhum equipamento cadastrado!</Text>
+        <TouchableOpacity style={styles.criar} onPress={() => setModalVisivel(true)}>
+          <Text style={styles.equipCriar}>Criar</Text>
+        </TouchableOpacity>
+        <CriarMobilia
+          visible={modalVisivel}
+          onClose={() => setModalVisivel(false)}
+          onCriar={buscarEquipamentos}
+        />
+      </View>
+    )
+  }
+
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.navigate('Mobilias')}>
-        <Text style={styles.mobilias}>Mobílias</Text>
+      <TouchableOpacity style={styles.mobilias} onPress={() => navigation.navigate('Mobilias')}>
+        <Icone name="arrowright" size={17} color='#261E6B' />
+        <Text style={{color: '#261E6B', marginLeft: 2, fontSize: 16}}>Mobílias</Text>
       </TouchableOpacity>
       <Text style={styles.equipDica}>Adicione, edite ou remova equipamentos com um clique e mantenha-os sempre atualizados!</Text>
       
-      {/* Campo de pesquisa */}
-      <TextInput
-        style={styles.inputPesquisa}
-        placeholder="Pesquise equipamentos pelo nome"
-        value={pesquisa}
-        onChangeText={setPesquisa}
-      />
+      {/* Campo de pesquisa com ícone no placeholder */}
+      <View style={styles.inputContainer}>
+        {pesquisa === '' && (
+          <View style={styles.placeholderContainer}>
+            <IconePesq name="search" size={20} color="#999" />
+            <Text style={styles.placeholderText}>Pesquise equipamentos pelo nome</Text>
+          </View>
+        )}
+        <TextInput
+          style={styles.inputPesquisa}
+          value={pesquisa}
+          onChangeText={setPesquisa}
+          placeholder="" // Placeholder real é deixado vazio
+        />
+      </View>
       
       <FlatList
         data={dadosFiltrados}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <View style={styles.item}>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Código de barras:</Text> {item.id}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Nome:</Text> {item.Nome}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Número de série:</Text> {item.Numero_serie}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Marca:</Text> {item.Marca}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Localização:</Text> {item.Localizacao}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Data de aquisição:</Text> {formatarData(item.Data_aquisicao)}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Custo de aquisição:</Text> {item.Custo_aquisicao}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Condição atual:</Text> {item.Condicao_atual}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Vida útil estimada:</Text> {item.Vida_util_estimada}</Text>
+            <View style={[styles.dadosContainer, styles.codBarras]}>
+              <Text style={styles.dadoScan}>Código de barras:</Text>
+              <Text style={[styles.dado, styles.id]}>{item.id}</Text>
+            </View>
+            <View style={styles.dadosContainer}>
+              <Text style={styles.dadoScan}>Nome:</Text>
+              <Text style={styles.dado}>{item.Nome}</Text>
+            </View>
+            <View style={styles.dadosContainer}>
+              <Text style={styles.dadoScan}>Número de série:</Text>
+              <Text style={styles.dado}>{item.Numero_serie}</Text>
+            </View>
+            <View style={styles.dadosContainer}>
+              <Text style={styles.dadoScan}>Marca:</Text>
+              <Text style={styles.dado}>{item.Marca}</Text>
+            </View>
+            <View style={styles.dadosContainer}>
+              <Text style={styles.dadoScan}>Localização:</Text>
+              <Text style={styles.dado}>{item.Localizacao}</Text>
+            </View>
+            <View style={styles.dadosContainer}>
+              <Text style={styles.dadoScan}>Data de aquisição:</Text>
+              <Text style={styles.dado}>{formatarData(item.Data_aquisicao)}</Text>
+            </View>
+            <View style={styles.dadosContainer}>
+              <Text style={styles.dadoScan}>Custo de aquisição:</Text>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={styles.dado}>{item.Custo_aquisicao}</Text>
+                <Text style={{marginLeft: 4}}>$00</Text>
+              </View>
+            </View>
+            <View style={styles.dadosContainer}>
+              <Text style={styles.dadoScan}>Condição atual:</Text>
+              <Text style={styles.dado}>{item.Condicao_atual}</Text>
+            </View>
+            <View style={styles.dadosContainer}>
+              <Text style={styles.dadoScan}>Vida útil estimada:</Text>
+              <Text style={styles.dado}>{item.Vida_util_estimada}</Text>
+            </View>
             <View style={styles.equipAcoes}>
               <TouchableOpacity onPress={() => navigation.navigate('EditarEquipamento', item)}>
-                <Text style={[styles.acao, styles.equipEditar]}>Editar</Text>
+                <Icone name="edit" size={18} style={[styles.acao, styles.equipEditar]} />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => apagarEquipamentoTi(item.id)}>
-                <Text style={[styles.acao, styles.equipApagar]}>Apagar</Text>
+                <Icone name="delete" size={18} style={[styles.acao, styles.equipApagar]} />
               </TouchableOpacity>
             </View>
           </View>
@@ -140,54 +197,79 @@ const styles = StyleSheet.create({
   },
   mobilias: {
     alignSelf: 'flex-end',
+    alignItems: 'center',
+    flexDirection: 'row',
     borderWidth: 1,
-    borderRadius: 4,
+    borderRadius: 3,
     borderColor: '#261E6B',
     paddingVertical: 6,
     paddingHorizontal: 10,
-    color: '#261E6B',
-    fontSize: 16,
   },
   equipDica: {
     textAlign: 'center',
     marginTop: 22,
-    marginBottom: 14,
+    marginBottom: 16,
     color: '#261E6B',
     fontSize: 16,
     fontWeight: '400',
   },
+  inputContainer: {
+    position: 'relative',
+    justifyContent: 'center',
+    paddingVertical: 8,
+  },
+  placeholderContainer: {
+    position: 'absolute',
+    flexDirection: 'row',
+    alignItems: 'center',
+    pointerEvents: 'none', // Permite clicar através do placeholder
+  },
+  placeholderText: {
+    color: '#999',
+    marginLeft: 5,
+  },
   inputPesquisa: {
-    height: 40,
     borderColor: '#CCC',
-    borderWidth: 0,
-    borderBottomWidth: 1,
-    marginBottom: 16,
-  },
-  item: {
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  equipTexto: {
+    color: '#000',
     fontSize: 16,
   },
-  equipRotulo: {
-    fontWeight: 'bold',
+  item: {
+    paddingTop: 6,
+    paddingBottom: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#ccc',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    backgroundColor: '#F8F8FA',
+    marginBottom: 4,
+  },
+  dadosContainer: {
+    marginBottom: 6,
+  },
+  codBarras: {
+    marginBottom: 8,
+    flexDirection: 'row',
+  },
+  id: {
+    marginLeft: 16,
+  },
+  dadoScan: {
+    fontWeight: '600',
+  },
+  dado: {
+    textAlign: 'justify',
   },
   equipAcoes: {
     flexDirection: 'row',
     marginTop: 16,
   },
   acao: {
-    borderRadius: 4,
-    paddingHorizontal: 32,
-    paddingVertical: 8,
-    fontWeight: 'bold',
-    fontSize: 18,
+    borderRadius: 3,
+    padding: 10,
     color: '#FFFFFF',
   },
   equipEditar: {
-    marginRight: 28,
+    marginRight: 48,
     backgroundColor: '#261E6B',
   },
   equipApagar: {
@@ -195,16 +277,16 @@ const styles = StyleSheet.create({
   },
   criar: {
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 16,
   },
   equipCriar: {
-    borderRadius: 4,
+    borderRadius: 3,
     fontWeight: 'bold',
     fontSize: 18,
     color: '#FFFFFF',
     backgroundColor: '#261E6B',
-    paddingHorizontal: 32,
-    paddingVertical: 8,
+    paddingHorizontal: 18,
+    paddingVertical: 6,
   },
   msgText: {
     textAlign: 'center',

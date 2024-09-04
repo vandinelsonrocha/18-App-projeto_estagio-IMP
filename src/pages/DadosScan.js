@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, View, Text, StyleSheet } from 'react-native';
+import { Alert, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { db, auth } from '../firebase/config';
 
 export default function DadosScan({ route, navigation }) {
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
   },
   msgText: {
     color: '#00A884',
-    fontWeight: 'bold',
-    fontSize: 24,
+    fontSize: 20,
+    fontWeight: '400',
   }
 })

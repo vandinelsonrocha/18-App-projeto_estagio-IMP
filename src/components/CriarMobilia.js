@@ -27,10 +27,11 @@ export default function CriarMobilia({ visible, onClose, onCriar }) {
 
   const handleCriar = async () => {
     try {
-      // Verifica se já existe um equipamento com o mesmo código de barras
-      const doc = await db.collection('mobilias').doc(codigoBarras).get();
-      if (doc.exists) {
-        Alert.alert("Erro", `Não foi possível criar porque uma mobília com o código de barras ${codigoBarras} já existe.`);
+      // Verifica se já existe um equipamento ou mobília com um código de barras já existente
+      const equipamento = await db.collection('equipamentos').doc(codigoBarras).get();
+      const mobilia = await db.collection('mobilias').doc(codigoBarras).get();
+      if (equipamento.exists || mobilia.exists) {
+        Alert.alert("Atenção!", `Não foi possível criar porque um equipamento ou mobília com o código de barras ${codigoBarras} já existe.`);
         return;
       }
 

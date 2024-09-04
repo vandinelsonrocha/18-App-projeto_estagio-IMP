@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, FlatList, StyleSheet, Alert, TouchableOpacity, TextInput } from 'react-native';
 import { db } from '../firebase/config';
 import { useFocusEffect } from '@react-navigation/native';
 import CriarMobilia from '../components/CriarMobilia';
+import IconePesq from 'react-native-vector-icons/MaterialIcons';
+import Icone from 'react-native-vector-icons/AntDesign';
 
 export default function Mobilias({ navigation }) {
   const [dadosMobilias, setDadosMobilias] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [modalVisivel, setModalVisivel] = useState(false);
+  const [pesquisa, setPesquisa] = useState('');
+  const [dadosFiltrados, setDadosFiltrados] = useState([]);
 
   const buscarMobilias = async () => {
     try {
@@ -22,7 +26,7 @@ export default function Mobilias({ navigation }) {
         setDadosMobilias(dados);
       }
     } catch (erro) {
-      Alert.alert('Erro', 'Erro ao buscar as mobílias!');
+      Alert.alert('Erro!', 'Erro ao buscar as mobílias!');
       navigation.navigate('Scan');
     } finally {
       setCarregando(false);
@@ -35,9 +39,17 @@ export default function Mobilias({ navigation }) {
     }, [])
   );
 
+  useEffect(() => {
+    const dadosAtualizados = dadosMobilias.filter(item => 
+      item.Nome.toLowerCase().includes(pesquisa.toLowerCase())
+    );
+    setDadosFiltrados(dadosAtualizados);
+
+  }, [pesquisa, dadosMobilias]);
+
   const apagarMobilia = (id) => {
     Alert.alert(
-      "Confirmação",
+      "Apagar mobília!",
       "Tem certeza que deseja apagar esta mobília?",
       [
         {
@@ -70,33 +82,88 @@ export default function Mobilias({ navigation }) {
   }
 
   if (dadosMobilias.length === 0) {
-    return <Text style={[styles.msgText, styles.msgText1]}>Nenhuma mobília cadastrada.</Text>;
+    return (
+      <View>
+        <Text style={[styles.msgText, styles.msgText2]}>Nenhuma mobília cadastrada!</Text>
+        <TouchableOpacity style={styles.criar} onPress={() => setModalVisivel(true)}>
+          <Text style={styles.equipCriar}>Criar</Text>
+        </TouchableOpacity>
+        <CriarMobilia
+          visible={modalVisivel}
+          onClose={() => setModalVisivel(false)}
+          onCriar={buscarMobilias}
+        />
+      </View>
+    )
   }
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.navigate('Equipamentos')}>
-        <Text style={styles.equipamentos}>Equipamentos</Text>
+      <TouchableOpacity style={styles.equipamentos} onPress={() => navigation.navigate('Equipamentos')}>
+        <Icone name="arrowright" size={17} color='#261E6B' />
+        <Text style={{color: '#261E6B', marginLeft: 2, fontSize: 16}}>Equipamentos</Text>
       </TouchableOpacity>
+      <Text style={styles.equipDica}>Adicione, edite ou remova mobílias com um clique e as mantenha sempre atualizadas!</Text>
+      
+      {/* Campo de pesquisa com ícone no placeholder */}
+      <View style={styles.inputContainer}>
+        {pesquisa === '' && (
+          <View style={styles.placeholderContainer}>
+            <IconePesq name="search" size={20} color="#999" />
+            <Text style={styles.placeholderText}>Pesquise mobílias pelo nome</Text>
+          </View>
+        )}
+        <TextInput
+          style={styles.inputPesquisa}
+          value={pesquisa}
+          onChangeText={setPesquisa}
+          placeholder="" // Placeholder real é deixado vazio
+        />
+      </View>
+      
       <FlatList
-        data={dadosMobilias}
+        data={dadosFiltrados}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <View style={styles.item}>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Código de barras:</Text> {item.id}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Nome:</Text> {item.Nome}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Localização:</Text> {item.Localizacao}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Data de aquisição:</Text> {formatarData(item.Data_aquisicao)}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Custo de aquisição:</Text> {item.Custo_aquisicao}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Condição atual:</Text> {item.Condicao_atual}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Vida útil estimada:</Text> {item.Vida_util_estimada}</Text>
-            <Text style={styles.equipTexto}><Text style={styles.equipRotulo}>Material:</Text> {item.Material}</Text>
+            <View style={[styles.dadosContainer, styles.codBarras]}>
+              <Text style={styles.dadoScan}>Código de barras:</Text>
+              <Text style={[styles.dado, styles.id]}>{item.id}</Text>
+            </View>
+            <View style={styles.dadosContainer}>
+              <Text style={styles.dadoScan}>Nome:</Text>
+              <Text style={styles.dado}>{item.Nome}</Text>
+            </View>
+            <View style={styles.dadosContainer}>
+              <Text style={styles.dadoScan}>Localização:</Text>
+              <Text style={styles.dado}>{item.Localizacao}</Text>
+            </View>
+            <View style={styles.dadosContainer}>
+              <Text style={styles.dadoScan}>Data de aquisição:</Text>
+              <Text style={styles.dado}>{formatarData(item.Data_aquisicao)}</Text>
+            </View>
+            <View style={styles.dadosContainer}>
+              <Text style={styles.dadoScan}>Custo de aquisição:</Text>
+              <Text style={styles.dado}>{item.Custo_aquisicao}</Text>
+            </View>
+            <View style={styles.dadosContainer}>
+              <Text style={styles.dadoScan}>Condição atual:</Text>
+              <Text style={styles.dado}>{item.Condicao_atual}</Text>
+            </View>
+            <View style={styles.dadosContainer}>
+              <Text style={styles.dadoScan}>Vida útil estimada:</Text>
+              <Text style={styles.dado}>{item.Vida_util_estimada}</Text>
+            </View>
+            <View style={styles.dadosContainer}>
+              <Text style={styles.dadoScan}>Material:</Text>
+              <Text style={styles.dado}>{item.Material}</Text>
+            </View>
             <View style={styles.equipAcoes}>
               <TouchableOpacity onPress={() => navigation.navigate('EditarMobilia', item)}>
-                <Text style={[styles.acao, styles.equipEditar]}>Editar</Text>
+                <Icone name="edit" size={18} style={[styles.acao, styles.equipEditar]} />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => apagarMobilia(item.id)}>
-                <Text style={[styles.acao, styles.equipApagar]}>Apagar</Text>
+                <Icone name="delete" size={18} style={[styles.acao, styles.equipApagar]} />
               </TouchableOpacity>
             </View>
           </View>
@@ -117,34 +184,84 @@ export default function Mobilias({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
+    padding: 16,
   },
-  item: {
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+  equipamentos: {
+    alignSelf: 'flex-end',
+    alignItems: 'center',
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderRadius: 3,
+    borderColor: '#261E6B',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
   },
-  equipTexto: {
+  equipDica: {
+    textAlign: 'center',
+    marginTop: 22,
+    marginBottom: 16,
+    color: '#261E6B',
+    fontSize: 16,
+    fontWeight: '400',
+  },
+  inputContainer: {
+    position: 'relative',
+    justifyContent: 'center',
+    paddingVertical: 8,
+  },
+  placeholderContainer: {
+    position: 'absolute',
+    flexDirection: 'row',
+    alignItems: 'center',
+    pointerEvents: 'none', // Permite clicar através do placeholder
+  },
+  placeholderText: {
+    color: '#999',
+    marginLeft: 5,
+  },
+  inputPesquisa: {
+    borderColor: '#CCC',
+    color: '#000',
     fontSize: 16,
   },
-  equipRotulo: {
-    fontWeight: 'bold',
+  item: {
+    paddingTop: 6,
+    paddingBottom: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#ccc',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    backgroundColor: '#F8F8FA',
+    marginBottom: 4,
+  },
+  dadosContainer: {
+    marginBottom: 6,
+  },
+  codBarras: {
+    marginBottom: 8,
+    flexDirection: 'row',
+  },
+  id: {
+    marginLeft: 16,
+  },
+  dadoScan: {
+    fontWeight: '600',
+  },
+  dado: {
+    textAlign: 'justify',
   },
   equipAcoes: {
     flexDirection: 'row',
     marginTop: 16,
   },
   acao: {
-    borderRadius: 4,
-    paddingHorizontal: 32,
-    paddingVertical: 8,
-    fontWeight: 'bold',
-    fontSize: 18,
+    borderRadius: 3,
+    padding: 10,
     color: '#FFFFFF',
   },
   equipEditar: {
-    marginRight: 28,
+    marginRight: 48,
     backgroundColor: '#261E6B',
   },
   equipApagar: {
@@ -152,16 +269,16 @@ const styles = StyleSheet.create({
   },
   criar: {
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 16,
   },
   equipCriar: {
-    borderRadius: 4,
+    borderRadius: 3,
     fontWeight: 'bold',
     fontSize: 18,
     color: '#FFFFFF',
     backgroundColor: '#261E6B',
-    paddingHorizontal: 32,
-    paddingVertical: 8,
+    paddingHorizontal: 18,
+    paddingVertical: 6,
   },
   msgText: {
     textAlign: 'center',
@@ -174,5 +291,5 @@ const styles = StyleSheet.create({
   },
   msgText2: {
     color: '#EF3236',
-  }
+  },
 });
