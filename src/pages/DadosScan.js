@@ -21,12 +21,12 @@ export default function DadosScan({ route, navigation }) {
             } else if (mobiliaDoc.exists) {
               setDadosScan({ id: dadosCodBarras, tipo: 'mobilia', ...mobiliaDoc.data() });
             } else {
-              Alert.alert('Dados', 'O equipamento ou mobília não está cadastrado!');
+              Alert.alert('Atenção!', 'O equipamento ou mobília não está cadastrado!');
               navigation.navigate('Scan');
             }
           }
         } else {
-          Alert.alert('Aviso', 'Não tem permissão para aceder aos dados!');
+          Alert.alert('Aviso!', 'Não tem permissão para aceder aos dados!');
           navigation.navigate('Scan');
         }
       }
@@ -62,7 +62,10 @@ export default function DadosScan({ route, navigation }) {
           </View>
           <View style={styles.dadosContainer}>
             <Text style={styles.dadoScan}>Custo de aquisição:</Text>
-            <Text style={styles.dado}>{dadosScan.Custo_aquisicao}</Text>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <Text style={styles.dado}>{dadosScan.Custo_aquisicao}</Text>
+              <Text style={{fontSize: 16, marginLeft: 4}}>$00</Text>
+            </View>
           </View>
           <View style={styles.dadosContainer}>
             <Text style={styles.dadoScan}>Condição atual:</Text>

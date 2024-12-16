@@ -121,6 +121,12 @@ export default function Equipamentos({ navigation }) {
           placeholder="" // Placeholder real é deixado vazio
         />
       </View>
+      {/* Verifica se a pesquisa está em andamento e não encontrou nenhum resultado */}
+      {pesquisa !== '' && dadosFiltrados.length === 0 && (
+        <Text style={[styles.msgText2, { textAlign: 'center', marginTop: 68 }]}>
+          Nenhum equipamento cadastrado com esse nome.
+        </Text>      
+      )}
       
       <FlatList
         data={dadosFiltrados}

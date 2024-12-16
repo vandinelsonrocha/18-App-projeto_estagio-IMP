@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { ScrollView, TextInput, StyleSheet, Alert, Text, View } from 'react-native';
+import { ScrollView, TextInput, StyleSheet, Alert, Text, View, TouchableOpacity } from 'react-native';
 import { db } from '../firebase/config';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import RemoverData from 'react-native-vector-icons/FontAwesome';
 
 export default function EditarEquipamento({ route, navigation }) {
   const { id, Nome, Numero_serie, Marca, Localizacao, Data_aquisicao, Custo_aquisicao, Condicao_atual, Vida_util_estimada } = route.params;
@@ -10,7 +11,7 @@ export default function EditarEquipamento({ route, navigation }) {
   const [numeroSerie, setNumeroSerie] = useState(Numero_serie);
   const [marca, setMarca] = useState(Marca);
   const [localizacao, setLocalizacao] = useState(Localizacao);
-  const [dataAquisicao, setDataAquisicao] = useState(Data_aquisicao ? Data_aquisicao.toDate() : new Date());
+  const [dataAquisicao, setDataAquisicao] = useState(Data_aquisicao ? Data_aquisicao.toDate() : null);
   const [custoAquisicao, setCustoAquisicao] = useState(Custo_aquisicao);
   const [condicaoAtual, setCondicaoAtual] = useState(Condicao_atual);
   const [vidaUtilEstimada, setVidaUtilEstimada] = useState(Vida_util_estimada);
@@ -18,7 +19,7 @@ export default function EditarEquipamento({ route, navigation }) {
 
   const handleSalvar = async () => {
     try {
-      await db.collection('equipamentos').doc(id).update({       
+      await db.collection('equipamentos').doc(id).update({
         Nome: nome,
         Numero_serie: numeroSerie,
         Marca: marca,
@@ -41,6 +42,10 @@ export default function EditarEquipamento({ route, navigation }) {
     }
   };
 
+  const handleLimparData = () => {
+    setDataAquisicao(null);
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <Text style={styles.equipId}>Editar equipamento: {id}</Text>
@@ -50,7 +55,7 @@ export default function EditarEquipamento({ route, navigation }) {
       </View>
       <View style={styles.dadoContainer}>
         <Text style={styles.dado}>Número de série:</Text>
-        <TextInput placeholder="Número de Série" value={numeroSerie} onChangeText={setNumeroSerie} keyboardType="numeric" />
+        <TextInput placeholder="Número de Série" value={numeroSerie} onChangeText={setNumeroSerie} />
       </View>
       <View style={styles.dadoContainer}>
         <Text style={styles.dado}>Marca:</Text>
@@ -62,15 +67,39 @@ export default function EditarEquipamento({ route, navigation }) {
       </View>
       <View style={styles.dadoContainer}>
         <Text style={styles.dado}>Data de Aquisição:</Text>
-        <TextInput onPress={() => setMostraDatePicker(true)}>{dataAquisicao.toLocaleDateString()}</TextInput>
+        <View style={styles.dataContainer}>
+          <TouchableOpacity onPress={() => setMostraDatePicker(true)} style={styles.dataInputContainer}>
+            <TextInput
+              editable={false}
+              value={dataAquisicao ? dataAquisicao.toLocaleDateString() : ""}
+              placeholder="Selecionar Data"
+              style={{ color: "#000000" }}
+            />
+          </TouchableOpacity>
+          {dataAquisicao && (
+            <TouchableOpacity onPress={handleLimparData}>
+              <RemoverData name="remove" size={17} color='#FE5B65' />
+            </TouchableOpacity>
+          )}
+        </View>
         {mostraDatePicker && (
-          <DateTimePicker value={dataAquisicao} mode="date" display="default" onChange={handleDataChange} />
+          <DateTimePicker
+            value={dataAquisicao || new Date()}
+            mode="date"
+            display="default"
+            onChange={handleDataChange}
+          />
         )}
       </View>
       <View style={styles.dadoContainer}>
         <Text style={styles.dado}>Custo de aquisição:</Text>
-        <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 2, alignItems: 'center'}}>
-          <TextInput placeholder="Custo de Aquisição" value={custoAquisicao} onChangeText={setCustoAquisicao} keyboardType="numeric" />
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 2, alignItems: 'center' }}>
+          <TextInput
+            placeholder="Custo de Aquisição"
+            value={custoAquisicao}
+            onChangeText={setCustoAquisicao}
+            keyboardType="numeric"
+          />
           <Text>$00</Text>
         </View>
       </View>
@@ -92,7 +121,7 @@ export default function EditarEquipamento({ route, navigation }) {
 
 const styles = StyleSheet.create({
   scrollContainer: {
-    flex: 1 ,
+    flex: 1,
     justifyContent: 'center',
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 20,
@@ -104,7 +133,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   dadoContainer: {
-    borderBottomWidth: .8,
+    borderBottomWidth: 0.8,
     borderBottomColor: '#CCC',
     marginBottom: 12,
   },
@@ -112,6 +141,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 14,
     marginBottom: 4,
+  },
+  dataContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dataInputContainer: {
+    flex: 1,
   },
   acoesContainer: {
     flexDirection: 'row',
@@ -131,5 +168,5 @@ const styles = StyleSheet.create({
   },
   cancelar: {
     backgroundColor: '#EF3236',
-  }
+  },
 });

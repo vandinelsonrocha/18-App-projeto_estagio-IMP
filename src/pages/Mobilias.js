@@ -120,6 +120,12 @@ export default function Mobilias({ navigation }) {
           placeholder="" // Placeholder real é deixado vazio
         />
       </View>
+      {/* Verifica se a pesquisa está em andamento e não encontrou nenhum resultado */}
+      {pesquisa !== '' && dadosFiltrados.length === 0 && (
+        <Text style={[styles.msgText2, { textAlign: 'center', marginTop: 68 }]}>
+          Nenhuma mobília cadastrada com esse nome.
+        </Text>      
+      )}
       
       <FlatList
         data={dadosFiltrados}
@@ -144,7 +150,10 @@ export default function Mobilias({ navigation }) {
             </View>
             <View style={styles.dadosContainer}>
               <Text style={styles.dadoScan}>Custo de aquisição:</Text>
-              <Text style={styles.dado}>{item.Custo_aquisicao}</Text>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={styles.dado}>{item.Custo_aquisicao}</Text>
+                <Text style={{marginLeft: 4}}>$00</Text>
+              </View>
             </View>
             <View style={styles.dadosContainer}>
               <Text style={styles.dadoScan}>Condição atual:</Text>

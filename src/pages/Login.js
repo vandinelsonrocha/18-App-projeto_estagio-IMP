@@ -21,12 +21,12 @@ export default function Login({ navigation }) {
     }
 
     if (email === '') {
-      setError('O campo de e-mail é obrigatório.');
+      setError('O E-mail é obrigatório.');
       return;
     }
 
     if (password === '') {
-      setError('O campo de senha é obrigatório.');
+      setError('A palavra-passe é obrigatória.');
       return;
     }
 
@@ -42,10 +42,10 @@ export default function Login({ navigation }) {
             setError('Você não tem permissões para acessar a aplicação.');
             break;
           case 'auth/invalid-email':
-            setError('E-mail mal formado.');
+            setError('O e-mail inserido não é válido.');
             break;
           case 'auth/invalid-credential':
-            setError('Palavra-passe incorreta.');
+            setError('O e-mail ou a palavra-passe estão errados. Tente novamente.');
             break;
           default:
             setError('Ocorreu um erro inesperado. Tente novamente.');
@@ -66,17 +66,17 @@ export default function Login({ navigation }) {
       </View>
       <Animatable.View animation="fadeInUp" style={styles.containerForm}>
         <Text style={styles.inputTitulo}>E-mail</Text>
-        <TextInput style={styles.input}
+        <TextInput style={styles.inputEmail}
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
         />
         <View>
-          <Text style={styles.inputTitulo}>Senha</Text>
+          <Text style={styles.inputTitulo}>Palavra-passe</Text>
           <View style={styles.passwordContainer}>
             <TextInput 
               style={styles.inputPassword}
-              placeholder="Password"
+              placeholder="Palavra-passe"
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     marginTop: 28,
     marginBottom: 12,
   },
-  input: {
+  inputEmail: {
     borderBottomWidth: 1,
     height: 40,
     marginBottom: 12,
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderBottomWidth: 0.9,
-    borderColor: 'black',
+    borderBottomColor: 'black',
     marginBottom: 12,
     height: 40,
   },
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   botao: {
     backgroundColor: '#261E6B',
     width: '100%',
-    borderRadius: 4,
+    borderRadius: 8,
     paddingVertical: 8,
     marginTop: 14,
     alignItems: 'center',
@@ -155,6 +155,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#FFFFFF',
     fontWeight: 'bold',
+    textTransform: 'uppercase',
   },
   msgErro: {
     textAlign: 'center',

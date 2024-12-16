@@ -1,11 +1,13 @@
 {
   "expo": {
-    "name": "barcode-scanner",
-    "slug": "barcode-scanner",
+    "name": "Inventário IMP",
+    "slug": "InventarioIMP",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./src/assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
+      "image": "./src/assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -15,7 +17,19 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
+      },
+      "package": "com.vandinelson.InventarioIMP"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "c4dec6b9-3abb-43c5-9772-965ebb9d5ca2"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/c4dec6b9-3abb-43c5-9772-965ebb9d5ca2"
     }
   }
 }

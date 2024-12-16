@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Modal, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, TextInput, Modal, StyleSheet, Text, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { db } from '../firebase/config';
 
@@ -13,7 +13,7 @@ export default function CriarEquipamento({ visible, onClose, onCriar }) {
   const [custoAquisicao, setCustoAquisicao] = useState('');
   const [condicaoAtual, setCondicaoAtual] = useState('');
   const [vidaUtilEstimada, setVidaUtilEstimada] = useState('');
-  const [mostrarDatePicker, setMostrarDatePicker] = useState(false);
+  const [mostraDatePicker, setMostraDatePicker] = useState(false);
 
   const limparCampos = () => {
     setCodigoBarras('');
@@ -61,75 +61,58 @@ export default function CriarEquipamento({ visible, onClose, onCriar }) {
     <Modal visible={visible} animationType="slide" transparent>
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <TextInput
-            placeholder="Código de Barras"
-            value={codigoBarras}
-            onChangeText={setCodigoBarras}
-            style={styles.input}
-          />
-          <TextInput
-            placeholder="Nome"
-            value={nome}
-            onChangeText={setNome}
-            style={styles.input}
-          />
-          <TextInput
-            placeholder="Número de Série"
-            value={numeroSerie}
-            onChangeText={setNumeroSerie}
-            style={styles.input}
-          />
-          <TextInput
-            placeholder="Marca"
-            value={marca}
-            onChangeText={setMarca}
-            style={styles.input}
-          />
-          <TextInput
-            placeholder="Localização"
-            value={localizacao}
-            onChangeText={setLocalizacao}
-            style={styles.input}
-          />
-          <TouchableOpacity onPress={() => setMostrarDatePicker(true)}>
-            <Text style={styles.input}>{`Data de Aquisição: ${dataAquisicao.toLocaleDateString()}`}</Text>
-          </TouchableOpacity>
-          {mostrarDatePicker && (
-            <DateTimePicker
-              value={dataAquisicao}
-              mode="date"
-              display="default"
+          <Text style={styles.equipTitle}>Criar equipamento</Text>
+          <View style={styles.dadoContainer}>
+            <Text style={styles.dado}>Código de barras:</Text>
+            <TextInput placeholder="Código de Barras" value={codigoBarras} onChangeText={setCodigoBarras} />
+          </View>
+          <View style={styles.dadoContainer}>
+            <Text style={styles.dado}>Nome:</Text>
+            <TextInput placeholder="Nome" value={nome} onChangeText={setNome} />
+          </View>
+          <View style={styles.dadoContainer}>
+            <Text style={styles.dado}>Número de série:</Text>
+            <TextInput placeholder="Número de Série" value={numeroSerie} onChangeText={setNumeroSerie} />
+          </View>
+          <View style={styles.dadoContainer}>
+            <Text style={styles.dado}>Marca:</Text>
+            <TextInput placeholder="Marca" value={marca} onChangeText={setMarca} />
+          </View>
+          <View style={styles.dadoContainer}>
+            <Text style={styles.dado}>Localização:</Text>
+            <TextInput placeholder="Localização" value={localizacao} onChangeText={setLocalizacao} />
+          </View>
+          <View style={styles.dadoContainer}>
+            <Text style={styles.dado}>Data de Aquisição:</Text>
+            <TextInput onPress={() => setMostraDatePicker(true)}>{dataAquisicao.toLocaleDateString()}</TextInput>
+            {mostraDatePicker && (
+              <DateTimePicker value={dataAquisicao} mode="date" display="default"
               onChange={(event, selectedDate) => {
-                setMostrarDatePicker(false);
+                setMostraDatePicker(false);
                 if (selectedDate) {
                   setDataAquisicao(selectedDate);
                 }
-              }}
-            />
-          )}
-          <TextInput
-            placeholder="Custo de Aquisição"
-            value={custoAquisicao}
-            onChangeText={setCustoAquisicao}
-            style={styles.input}
-            keyboardType="numeric"
-          />
-          <TextInput
-            placeholder="Condição Atual"
-            value={condicaoAtual}
-            onChangeText={setCondicaoAtual}
-            style={styles.input}
-          />
-          <TextInput
-            placeholder="Vida Útil Estimada"
-            value={vidaUtilEstimada}
-            onChangeText={setVidaUtilEstimada}
-            style={styles.input}
-            keyboardType="numeric"
-          />
-          <View style={styles.buttonContainer}>
-            <Button title="Cancelar" onPress={onClose} color="#EF3236" />
-            <Button title="Ok" onPress={handleCriar} color="#261E6B" />
+              }} />
+            )}
+          </View>
+          <View style={styles.dadoContainer}>
+            <Text style={styles.dado}>Custo de aquisição:</Text>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 2, alignItems: 'center'}}>
+              <TextInput placeholder="Custo de Aquisição" value={custoAquisicao} onChangeText={setCustoAquisicao} keyboardType="numeric" />
+              <Text>$00</Text>
+            </View>
+          </View>
+          <View style={styles.dadoContainer}>
+            <Text style={styles.dado}>Condição atual:</Text>
+            <TextInput placeholder="Condição Atual" value={condicaoAtual} onChangeText={setCondicaoAtual} />
+          </View>
+          <View style={styles.dadoContainer}>
+            <Text style={styles.dado}>Vida útil estimada:</Text>
+            <TextInput placeholder="Vida Útil Estimada" value={vidaUtilEstimada} onChangeText={setVidaUtilEstimada} />
+          </View>
+          <View style={styles.acoesContainer}>
+            <Text style={[styles.botaoAcao, styles.salvar]} onPress={handleCriar}>Salvar</Text>
+            <Text style={[styles.botaoAcao, styles.cancelar]} onPress={onClose}>Cancelar</Text>
           </View>
         </View>
       </View>
@@ -146,19 +129,43 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '80%',
-    padding: 20,
-    backgroundColor: '#fff',
+    padding: 15,
+    backgroundColor: '#FFFFFF',
     borderRadius: 10,
   },
-  input: {
-    marginBottom: 15,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
+  equipTitle: {
+    textAlign: 'center',
+    fontWeight: '500',
+    fontSize: 16,
+    marginBottom: 4,
   },
-  buttonContainer: {
+  dadoContainer: {
+    borderBottomWidth: .8,
+    borderBottomColor: '#CCC',
+    marginBottom: 12,
+  },
+  dado: {
+    fontWeight: '400',
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  acoesContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginTop: 4,
   },
+  botaoAcao: {
+    borderRadius: 3,
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: '#FFFFFF',
+    paddingHorizontal: 18,
+    paddingVertical: 6,
+  },
+  salvar: {
+    backgroundColor: '#261E6B',
+  },
+  cancelar: {
+    backgroundColor: '#EF3236',
+  }
 });
