@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, TextInput, Modal, StyleSheet, Text, Alert } from 'react-native';
+import { View, TextInput, Modal, StyleSheet, Text, Alert, TouchableOpacity } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import RemoverData from 'react-native-vector-icons/FontAwesome';
 import { db } from '../firebase/config';
 
 export default function CriarEquipamento({ visible, onClose, onCriar }) {
@@ -9,7 +10,7 @@ export default function CriarEquipamento({ visible, onClose, onCriar }) {
   const [numeroSerie, setNumeroSerie] = useState('');
   const [marca, setMarca] = useState('');
   const [localizacao, setLocalizacao] = useState('');
-  const [dataAquisicao, setDataAquisicao] = useState(new Date());
+  const [dataAquisicao, setDataAquisicao] = useState(null);
   const [custoAquisicao, setCustoAquisicao] = useState('');
   const [condicaoAtual, setCondicaoAtual] = useState('');
   const [vidaUtilEstimada, setVidaUtilEstimada] = useState('');
@@ -21,7 +22,7 @@ export default function CriarEquipamento({ visible, onClose, onCriar }) {
     setNumeroSerie('');
     setMarca('');
     setLocalizacao('');
-    setDataAquisicao(new Date());
+    setDataAquisicao(null);
     setCustoAquisicao('');
     setCondicaoAtual('');
     setVidaUtilEstimada('');
@@ -29,28 +30,26 @@ export default function CriarEquipamento({ visible, onClose, onCriar }) {
 
   const handleCriar = async () => {
     try {
-      // Verifica se já existe um equipamento ou mobília com um código de barras já existente
       const equipamento = await db.collection('equipamentos').doc(codigoBarras).get();
       const mobilia = await db.collection('mobilias').doc(codigoBarras).get();
       if (equipamento.exists || mobilia.exists) {
-        Alert.alert("Atenção!", `Não foi possível criar porque um equipamento ou mobília com o código de barras ${codigoBarras} já existe.`);
+        Alert.alert("Atenção!", `Já existe um equipamento ou mobília com o código de barras ${codigoBarras}.`);
         return;
       }
 
-      // Se não existir, cria o novo equipamento
       await db.collection('equipamentos').doc(codigoBarras).set({
         Nome: nome,
         Numero_serie: numeroSerie,
         Marca: marca,
         Localizacao: localizacao,
-        Data_aquisicao: dataAquisicao,
+        Data_aquisicao: dataAquisicao ? dataAquisicao.toISOString() : null,
         Custo_aquisicao: custoAquisicao,
         Condicao_atual: condicaoAtual,
         Vida_util_estimada: vidaUtilEstimada,
       });
 
       onCriar();
-      limparCampos(); // Limpa os campos após a criação do equipamento
+      limparCampos();
       onClose();
     } catch (erro) {
       Alert.alert("Erro!", "Erro ao criar o equipamento.");
@@ -84,20 +83,37 @@ export default function CriarEquipamento({ visible, onClose, onCriar }) {
           </View>
           <View style={styles.dadoContainer}>
             <Text style={styles.dado}>Data de Aquisição:</Text>
-            <TextInput onPress={() => setMostraDatePicker(true)}>{dataAquisicao.toLocaleDateString()}</TextInput>
+            <View style={styles.dataContainer}>
+              <TouchableOpacity onPress={() => setMostraDatePicker(true)} style={styles.dataInput}>
+                <Text style={{ color: dataAquisicao ? '#000000' : '#A9A9A9' }}>
+                  {dataAquisicao ? dataAquisicao.toLocaleDateString() : 'Selecionar data'}
+                </Text>
+            </TouchableOpacity>
+              {dataAquisicao && (
+                <TouchableOpacity onPress={() => setDataAquisicao(null)}>
+                  <RemoverData name="remove" size={17} color='#FE5B65' />
+                </TouchableOpacity>
+              )}
+            </View>
+
             {mostraDatePicker && (
-              <DateTimePicker value={dataAquisicao} mode="date" display="default"
-              onChange={(event, selectedDate) => {
-                setMostraDatePicker(false);
-                if (selectedDate) {
-                  setDataAquisicao(selectedDate);
-                }
-              }} />
+              <DateTimePicker
+                value={dataAquisicao || new Date()}
+                mode="date"
+                display="default"
+                onChange={(event, selectedDate) => {
+                  setMostraDatePicker(false);
+                  if (selectedDate) {
+                    setDataAquisicao(selectedDate);
+                  }
+                }}
+              />
             )}
           </View>
+
           <View style={styles.dadoContainer}>
             <Text style={styles.dado}>Custo de aquisição:</Text>
-            <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 2, alignItems: 'center'}}>
+            <View style={styles.row}>
               <TextInput placeholder="Custo de Aquisição" value={custoAquisicao} onChangeText={setCustoAquisicao} keyboardType="numeric" />
               <Text>$00</Text>
             </View>
@@ -140,7 +156,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   dadoContainer: {
-    borderBottomWidth: .8,
+    borderBottomWidth: 0.8,
     borderBottomColor: '#CCC',
     marginBottom: 12,
   },
@@ -148,6 +164,13 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     fontSize: 14,
     marginBottom: 4,
+  },
+  dataContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  dataInput: {
+    flex: 1,
   },
   acoesContainer: {
     flexDirection: 'row',
@@ -167,5 +190,5 @@ const styles = StyleSheet.create({
   },
   cancelar: {
     backgroundColor: '#EF3236',
-  }
+  },
 });

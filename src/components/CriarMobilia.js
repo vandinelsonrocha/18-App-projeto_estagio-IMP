@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, TextInput, Modal, StyleSheet, Text, Alert } from 'react-native';
+import { View, TextInput, Modal, StyleSheet, Text, Alert, TouchableOpacity } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import RemoverData from 'react-native-vector-icons/FontAwesome';
 import { db } from '../firebase/config';
 
 export default function CriarMobilia({ visible, onClose, onCriar }) {
@@ -72,19 +73,36 @@ export default function CriarMobilia({ visible, onClose, onCriar }) {
             <Text style={styles.dado}>Localização:</Text>
             <TextInput placeholder="Localização" value={localizacao} onChangeText={setLocalizacao} />
           </View>
-          <View style={styles.dadoContainer}>
+          <View style={[styles.dadoContainer, {paddingBottom: 4}]}>
             <Text style={styles.dado}>Data de Aquisição:</Text>
-            <TextInput onPress={() => setMostraDatePicker(true)}>{dataAquisicao.toLocaleDateString()}</TextInput>
+            <View style={styles.dataContainer}>
+              <TouchableOpacity onPress={() => setMostraDatePicker(true)} style={styles.dataInput}>
+                <Text style={{ color: dataAquisicao ? '#000000' : '#A9A9A9' }}>
+                  {dataAquisicao ? dataAquisicao.toLocaleDateString() : 'Selecionar data'}
+                </Text>
+            </TouchableOpacity>
+              {dataAquisicao && (
+                <TouchableOpacity onPress={() => setDataAquisicao(null)}>
+                  <RemoverData name="remove" size={17} color='#FE5B65' />
+                </TouchableOpacity>
+              )}
+            </View>
+
             {mostraDatePicker && (
-              <DateTimePicker value={dataAquisicao} mode="date" display="default"
-              onChange={(event, selectedDate) => {
-                setMostraDatePicker(false);
-                if (selectedDate) {
-                  setDataAquisicao(selectedDate);
-                }
-              }} />
+              <DateTimePicker
+                value={dataAquisicao || new Date()}
+                mode="date"
+                display="default"
+                onChange={(event, selectedDate) => {
+                  setMostraDatePicker(false);
+                  if (selectedDate) {
+                    setDataAquisicao(selectedDate);
+                  }
+                }}
+              />
             )}
           </View>
+
           <View style={styles.dadoContainer}>
             <Text style={styles.dado}>Custo de aquisição:</Text>
             <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 2, alignItems: 'center'}}>
@@ -142,6 +160,13 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     fontSize: 14,
     marginBottom: 4,
+  },
+  dataContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  dataInput: {
+    flex: 1,
   },
   acoesContainer: {
     flexDirection: 'row',

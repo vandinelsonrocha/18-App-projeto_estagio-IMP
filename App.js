@@ -12,10 +12,18 @@ import Equipamentos from './src/pages/Equipamentos';
 import EditarEquipamento from './src/pages/EditarEquipamento';
 import Mobilias from './src/pages/Mobilias';
 import EditarMobilia from './src/pages/EditarMobilia';
+import * as Sentry from '@sentry/react-native';
+
+Sentry.init({
+  dsn: 'https://0b0f9d9af0addc0d34cd4f2aaca553f9@o4508811335106560.ingest.de.sentry.io/4508811541938256',
+
+  // uncomment the line below to enable Spotlight (https://spotlightjs.com)
+  // spotlight: __DEV__,
+});
 
 const Stack = createStackNavigator();  //permite criar a navegação para a app
 
-export default function App() {
+function App() {
   return (
     <NavigationContainer>
       <StatusBar backgroundColor='#261E6B' barStyle='light-content' />
@@ -32,3 +40,5 @@ export default function App() {
     </NavigationContainer>
   );
 }
+
+export default Sentry.wrap(App);

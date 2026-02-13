@@ -30,6 +30,16 @@
     },
     "updates": {
       "url": "https://u.expo.dev/c4dec6b9-3abb-43c5-9772-965ebb9d5ca2"
-    }
+    },
+    "plugins": [
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "react-native",
+          "organization": "universidade-do-isecmaruta"
+        }
+      ]
+    ]
   }
 }
